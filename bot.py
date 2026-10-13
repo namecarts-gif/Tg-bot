@@ -1,7 +1,26 @@
 import datetime
 import random
 from collections import defaultdict
+import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
+
+# Фейковый веб-сервер, чтобы Render не ругался на порты
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is active!")
+    def log_message(self, format, *args):
+        pass
+
+def run_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), SimpleHandler)
+    server.serve_forever()
+
+threading.Thread(target=run_server, daemon=True).start()
 
 BOT_TOKEN = "8991528748:AAErqctNdHVU8t4kHnsnL3fmiGKwuF58T1o"
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -217,4 +236,4 @@ if __name__ == "__main__":
         pass
     print("🚀 Бот запущен!")
     bot.infinity_polling(skip_pending=True)
-          
+    
